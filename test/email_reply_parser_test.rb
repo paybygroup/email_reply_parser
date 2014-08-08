@@ -2,6 +2,7 @@ require 'rubygems'
 require 'test/unit'
 require 'pathname'
 require 'pp'
+# require 'pry'
 
 dir = Pathname.new File.expand_path(File.dirname(__FILE__))
 require dir + '..' + 'lib' + 'email_reply_parser'
@@ -36,7 +37,7 @@ I am currently using the Java HTTP API.\n", reply.fragments[0].to_s
       reply.fragments.map { |f| f.quoted? }
     assert_equal [false, true, true, true, true],
       reply.fragments.map { |f| f.hidden? }
-    assert_equal [false, true, false, false, true],
+    assert_equal [false, true, true, false, true],
       reply.fragments.map { |f| f.signature? }
 
     assert_match /^Oh thanks.\n\nHaving/, reply.fragments[0].to_s
@@ -51,7 +52,7 @@ I am currently using the Java HTTP API.\n", reply.fragments[0].to_s
 
     assert_equal [false, true, false, true, false, false],
       reply.fragments.map { |f| f.quoted? }
-    assert_equal [false, false, false, false, false, true],
+    assert_equal [false, true, false, false, false, true],
       reply.fragments.map { |f| f.signature? }
     assert_equal [false, false, false, true, true, true],
       reply.fragments.map { |f| f.hidden? }
@@ -147,6 +148,11 @@ I am currently using the Java HTTP API.\n", reply.fragments[0].to_s
   def test_parse_out_just_top_for_gmail_with_reply_directly_above_line
     body = IO.read EMAIL_FIXTURE_PATH.join("email_1_9.txt").to_s
     assert_equal "These are awesome comments", EmailReplyParser.parse_reply(body)
+  end
+
+  def test_parse_out_just_top_for_gmail_from_edgar_with_reply_directly_above_line
+    body = IO.read EMAIL_FIXTURE_PATH.join("email_2_3.txt").to_s
+    assert_equal "edgar is replying", EmailReplyParser.parse_reply(body)
   end
 
   def test_parse_out_sent_from_iPhone
